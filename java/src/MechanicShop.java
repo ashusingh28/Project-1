@@ -440,7 +440,7 @@ public class MechanicShop{
 			System.out.print("Enter customer's last name: ");
 			String lname = in.readLine();
 			//ILIKE is a case-insensitive LIKE
-			String query = "SELECT fname, phone, address FROM Customer WHERE lname = '" + lname + "'";
+			String query = "SELECT TRIM(fname), phone, address FROM Customer WHERE lname = '" + lname + "'";
 			List<List<String>> potentialCustomers = esql.executeQueryAndReturnResult(query);
 			if(potentialCustomers.size() == 0){
 				found = false;
