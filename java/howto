@@ -1,4 +1,5 @@
 source ./startPostgreSQL.sh
 source ./createPostgreDB.sh
+./compile.sh
 ./run.sh ashu_jesse_DB 8238 jreye039
 source ./stopPostgreDB.sh
