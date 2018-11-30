@@ -1,0 +1,4 @@
+source ./startPostgreSQL.sh
+source ./createPostgreDB.sh
+./run.sh jreye039_DB 8238 jreye039
+source ./stopPostgreDB.sh
