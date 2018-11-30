@@ -1,5 +1,5 @@
 #! /bin/bash
-folder=/tmp/$USER
+folder=/tmp/ashu_jesse
 export PGDATA=$folder/myDB/data
 export PGSOCKETS=$folder/myDB/sockets
 
