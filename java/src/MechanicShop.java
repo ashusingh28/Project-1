@@ -435,12 +435,13 @@ public class MechanicShop{
 	
 	public static void InsertServiceRequest(MechanicShop esql){//4
 		boolean found = true; //Assume we will find a customer with a matching last name
+		String id; //id of customer initiating the service request
 
 		try{
 			System.out.print("Enter customer's last name: ");
 			String lname = in.readLine();
-			//ILIKE is a case-insensitive LIKE
-			String query = "SELECT TRIM(fname), phone, address FROM Customer WHERE lname = '" + lname + "'";
+			//Select customers whose name matches the given last name
+			String query = "SELECT TRIM(fname), phone, address, id FROM Customer WHERE LOWER(lname) = LOWER('" + lname + "')";
 			List<List<String>> potentialCustomers = esql.executeQueryAndReturnResult(query);
 			if(potentialCustomers.size() == 0){
 				found = false;
@@ -454,9 +455,14 @@ public class MechanicShop{
 				}
 				System.out.println("Choose which customer initiated the service request");
 				String choice = in.readLine();//TODO Input error checking
+				//id of chosen customer
+				id = potentialCustomers.get(Integer.parseInt(choice) - 1).get(3);
+				System.out.print(id);
 			}
 			else if(potentialCustomers.size() == 1){
-				System.out.print("TODO");
+				//Get the id of the customer
+				id = potentialCustomers.get(0).get(3);
+				System.out.print(id);
 			}
 		}catch(Exception e){
 			System.err.println(e.getMessage());
