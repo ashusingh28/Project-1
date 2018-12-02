@@ -23,6 +23,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
+//NEW
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -435,7 +438,13 @@ public class MechanicShop{
 	
 	public static void InsertServiceRequest(MechanicShop esql){//4
 		String input = ""; //For getting user input
+		boolean chosen = false;
+		int rid = 0; //Service Request id
 		String id = ""; //id of customer initiating the service request
+		String vin = ""; //VIN of car needing the service
+		String date = ""; //Date brought in for service
+		int odometer = 0; //Number of miles on the cars odometer
+		String complaint = ""; //The reason for bringing the car in for service
 
 		try{
 			System.out.print("Enter customer's last name: ");
@@ -469,10 +478,10 @@ public class MechanicShop{
 				}
 				//Choose the customer who is initiating the service request
 				System.out.println("Choose which customer initiated the service request");
-				boolean chosen = false;
+				chosen = false;
 				while(!chosen){
 					input = in.readLine();//TODO Input error checking
-					if(Integer.parseInt(input) > potentialCustomers.size()){
+					if(Integer.parseInt(input) > potentialCustomers.size() || Integer.parseInt(input) <= 0){
 						System.out.println("Invalid input, enter a number from 1-" + Integer.toString(potentialCustomers.size()));
 					}
 					else{
@@ -503,6 +512,55 @@ public class MechanicShop{
 					//Print car year make model, VIN
 					System.out.println(Integer.toString(i + 1) + ": " + cars.get(0).get(3) + " " + cars.get(0).get(1) + " " + cars.get(0).get(2) + ", VIN: " + cars.get(0).get(0));
 				}
+				System.out.println();
+				chosen = false;
+				while(!chosen){
+					input = in.readLine();
+					if(Integer.parseInt(input) > vins.size() || Integer.parseInt(input) <= 0){
+						System.out.print("Invalid input, enter a number from 1-" + Integer.toString(vins.size()));
+					}
+					else{
+						chosen = true;
+						System.out.println();
+					}
+				}
+				//VIN of chosen car
+				vin = vins.get(Integer.parseInt(input) - 1).get(0);
+				
+				//Get the miles from the odometer
+				System.out.println("Enter the amount of miles displayed on the odometer: ");
+				chosen = false;
+				while(!chosen){
+					input = in.readLine();
+					if(Integer.parseInt(input) <= 0){
+						System.out.print("Invalid input, enter a number greater than 0");
+					}
+					else{
+						chosen = true;
+						odometer = Integer.parseInt(input);
+					}
+				}
+
+				//auto increment Service_Request id
+				query = "SELECT rid FROM Service_Request ORDER BY rid DESC LIMIT 1";
+				List<List<String>> servicerequestID = esql.executeQueryAndReturnResult(query);
+				rid = Integer.parseInt(servicerequestID.get(0).get(0)) + 1;
+
+				//Get the current date
+				Date getDate = new Date();
+				date = new SimpleDateFormat("yyyy-MM-dd").format(getDate);
+
+				//Get the customer's complaint
+				System.out.print("Enter a brief description of the problem: ");
+				complaint = in.readLine();
+				System.out.println();
+
+				//Execute the query
+				query = "INSERT INTO Service_Request(rid, customer_id, car_vin, date, odometer, complain) VALUES (" + rid + ", " + Integer.parseInt(id) + ", '" + vin + "', '" + date + "', " + odometer + ", '" + complaint + "')";
+				esql.executeUpdate(query);
+			}
+			else{
+				AddCar(esql);
 			}
 
 
