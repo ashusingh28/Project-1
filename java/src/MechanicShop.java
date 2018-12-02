@@ -426,7 +426,7 @@ public class MechanicShop{
 				}
 			}
 			//Store info in DB
-			String query = "INSERT INTO Car(vin, make, model, year) VALUES (" + vin + ", '" + make + "', '" + model + "', '" + year + "')";
+			String query = "INSERT INTO Car(vin, make, model, year) VALUES ('" + vin + "', '" + make + "', '" + model + "', " + Integer.parseInt(year) + ")";
 			esql.executeUpdate(query);			
 		}catch(Exception e){
 			System.err.println(e.getMessage());
@@ -434,36 +434,86 @@ public class MechanicShop{
 	}
 	
 	public static void InsertServiceRequest(MechanicShop esql){//4
-		boolean found = true; //Assume we will find a customer with a matching last name
-		String id; //id of customer initiating the service request
+		String input = ""; //For getting user input
+		String id = ""; //id of customer initiating the service request
 
 		try{
 			System.out.print("Enter customer's last name: ");
 			String lname = in.readLine();
+			
 			//Select customers whose name matches the given last name
 			String query = "SELECT TRIM(fname), phone, address, id FROM Customer WHERE LOWER(lname) = LOWER('" + lname + "')";
 			List<List<String>> potentialCustomers = esql.executeQueryAndReturnResult(query);
+			
+			//If no customer exists with given last name
 			if(potentialCustomers.size() == 0){
-				found = false;
 				System.out.println("Sorry, we couldn't find any customers with that last name");
+				System.out.println("Would you like to add a new customer?");
+				System.out.println("1. Yes\n2. No");
+				input = in.readLine();
+				if(Integer.parseInt(input) == 1){
+					AddCustomer(esql);
+					return;
+				}
+				else if(Integer.parseInt(input) == 2){
+					//do nothing
+					return;
+				}
 			}
-			//If more than one customer with same last name
+			
+			//If more than one customer with the same last name
 			else if(potentialCustomers.size() > 1){
 				//Print out all the different customers with the same last name
 				for(int i = 0; i < potentialCustomers.size(); ++i){
 					System.out.println(Integer.toString(i + 1) + ". First Name: " + potentialCustomers.get(i).get(0) + ", Phone Number: " + potentialCustomers.get(i).get(1) + ", Address: " + potentialCustomers.get(i).get(2));
 				}
+				//Choose the customer who is initiating the service request
 				System.out.println("Choose which customer initiated the service request");
-				String choice = in.readLine();//TODO Input error checking
+				boolean chosen = false;
+				while(!chosen){
+					input = in.readLine();//TODO Input error checking
+					if(Integer.parseInt(input) > potentialCustomers.size()){
+						System.out.println("Invalid input, enter a number from 1-" + Integer.toString(potentialCustomers.size()));
+					}
+					else{
+						chosen = true;
+					}
+				}
 				//id of chosen customer
-				id = potentialCustomers.get(Integer.parseInt(choice) - 1).get(3);
-				System.out.print(id);
+				id = potentialCustomers.get(Integer.parseInt(input) - 1).get(3);
 			}
+			
+			//If only one customer exists with the given last name
 			else if(potentialCustomers.size() == 1){
 				//Get the id of the customer
 				id = potentialCustomers.get(0).get(3);
-				System.out.print(id);
 			}
+			
+			//Get list of VINs from cars belonging to the customer
+			query = "SELECT car_vin FROM Owns WHERE customer_id = " + id;
+			List<List<String>> vins = esql.executeQueryAndReturnResult(query);
+			
+			//Print list of cars to potentially service
+			List<List<String>> cars;
+			if(vins.size() > 0){
+				System.out.println("Choose which car needs to be serviced:");
+				for(int i = 0; i < vins.size(); ++i){
+					query = "SELECT * FROM Car WHERE vin = '" + vins.get(i).get(0) + "'";
+					cars = esql.executeQueryAndReturnResult(query);
+					//Print car year make model, VIN
+					System.out.println(Integer.toString(i + 1) + ": " + cars.get(0).get(3) + " " + cars.get(0).get(1) + " " + cars.get(0).get(2) + ", VIN: " + cars.get(0).get(0));
+				}
+			}
+
+
+
+
+
+
+
+
+
+
 		}catch(Exception e){
 			System.err.println(e.getMessage());
 		}
