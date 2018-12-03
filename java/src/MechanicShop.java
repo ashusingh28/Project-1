@@ -526,51 +526,42 @@ public class MechanicShop{
 				}
 				//VIN of chosen car
 				vin = vins.get(Integer.parseInt(input) - 1).get(0);
-				
-				//Get the miles from the odometer
-				System.out.println("Enter the amount of miles displayed on the odometer: ");
-				chosen = false;
-				while(!chosen){
-					input = in.readLine();
-					if(Integer.parseInt(input) <= 0){
-						System.out.print("Invalid input, enter a number greater than 0");
-					}
-					else{
-						chosen = true;
-						odometer = Integer.parseInt(input);
-					}
-				}
-
-				//auto increment Service_Request id
-				query = "SELECT rid FROM Service_Request ORDER BY rid DESC LIMIT 1";
-				List<List<String>> servicerequestID = esql.executeQueryAndReturnResult(query);
-				rid = Integer.parseInt(servicerequestID.get(0).get(0)) + 1;
-
-				//Get the current date
-				Date getDate = new Date();
-				date = new SimpleDateFormat("yyyy-MM-dd").format(getDate);
-
-				//Get the customer's complaint
-				System.out.print("Enter a brief description of the problem: ");
-				complaint = in.readLine();
-				System.out.println();
-
-				//Execute the query
-				query = "INSERT INTO Service_Request(rid, customer_id, car_vin, date, odometer, complain) VALUES (" + rid + ", " + Integer.parseInt(id) + ", '" + vin + "', '" + date + "', " + odometer + ", '" + complaint + "')";
-				esql.executeUpdate(query);
 			}
 			else{
-				AddCar(esql);
+				AddCar(esql);//HERE TODO
 			}
 
+			//Get the miles from the odometer
+			System.out.println("Enter the amount of miles displayed on the odometer: ");
+			chosen = false;
+			while(!chosen){
+				input = in.readLine();
+				if(Integer.parseInt(input) <= 0){
+					System.out.print("Invalid input, enter a number greater than 0");
+				}
+				else{
+					chosen = true;
+					odometer = Integer.parseInt(input);
+				}
+			}
 
+			//auto increment Service_Request id
+			query = "SELECT rid FROM Service_Request ORDER BY rid DESC LIMIT 1";
+			List<List<String>> servicerequestID = esql.executeQueryAndReturnResult(query);
+			rid = Integer.parseInt(servicerequestID.get(0).get(0)) + 1;
 
+			//Get the current date
+			Date getDate = new Date();
+			date = new SimpleDateFormat("yyyy-MM-dd").format(getDate);
 
+			//Get the customer's complaint
+			System.out.print("Enter a brief description of the problem: ");
+			complaint = in.readLine();
+			System.out.println();
 
-
-
-
-
+			//Execute the query
+			query = "INSERT INTO Service_Request(rid, customer_id, car_vin, date, odometer, complain) VALUES (" + rid + ", " + Integer.parseInt(id) + ", '" + vin + "', '" + date + "', " + odometer + ", '" + complaint + "')";
+			esql.executeUpdate(query);
 
 		}catch(Exception e){
 			System.err.println(e.getMessage());
