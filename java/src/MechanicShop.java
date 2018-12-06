@@ -26,6 +26,7 @@ import java.util.ArrayList;
 //NEW
 import java.util.Date;
 import java.text.SimpleDateFormat;
+//NEW
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -37,6 +38,14 @@ public class MechanicShop{
 	//reference to physical database connection
 	private Connection _connection = null;
 	static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+	//my definitions
+	
+	//For retrieving VIN from customer without any cars when inserting a service request
+	private boolean insertingSR = false;
+	private ArrayList<String> returnVIN = new ArrayList<String>();
+
+	//my definitions
 	
 	public MechanicShop(String dbname, String dbport, String user, String passwd) throws SQLException {
 		System.out.print("Connecting to database...");
@@ -430,7 +439,13 @@ public class MechanicShop{
 			}
 			//Store info in DB
 			String query = "INSERT INTO Car(vin, make, model, year) VALUES ('" + vin + "', '" + make + "', '" + model + "', " + Integer.parseInt(year) + ")";
-			esql.executeUpdate(query);			
+			esql.executeUpdate(query);
+
+			//When adding a new car for InsertServiceRequest, return the car's VIN
+			if(esql.insertingSR){
+				esql.returnVIN.add(vin);
+				esql.insertingSR = false;
+			}
 		}catch(Exception e){
 			System.err.println(e.getMessage());
 		}
@@ -528,7 +543,18 @@ public class MechanicShop{
 				vin = vins.get(Integer.parseInt(input) - 1).get(0);
 			}
 			else{
-				AddCar(esql);//HERE TODO
+				//Add a new car and return the car's VIN
+				esql.insertingSR = true;
+				AddCar(esql);
+				vin = esql.returnVIN.get(0);
+				esql.returnVIN.remove(0);
+
+				//Add the new car to the 'Owns' table
+				query = "SELECT ownership_id FROM Owns ORDER BY ownership_id DESC LIMIT 1";
+				List<List<String>> ownership_id = esql.executeQueryAndReturnResult(query);
+				int ownershipID = Integer.parseInt(ownership_id.get(0).get(0)) + 1;
+				query = "INSERT INTO Owns(ownership_id, customer_id, car_vin) VALUES(" + ownershipID + ", " + Integer.parseInt(id) + ", '" + vin + "')";
+				esql.executeUpdate(query);
 			}
 
 			//Get the miles from the odometer
@@ -537,7 +563,7 @@ public class MechanicShop{
 			while(!chosen){
 				input = in.readLine();
 				if(Integer.parseInt(input) <= 0){
-					System.out.print("Invalid input, enter a number greater than 0");
+					System.out.println("Invalid input, enter a number greater than 0");
 				}
 				else{
 					chosen = true;
@@ -555,14 +581,14 @@ public class MechanicShop{
 			date = new SimpleDateFormat("yyyy-MM-dd").format(getDate);
 
 			//Get the customer's complaint
-			System.out.print("Enter a brief description of the problem: ");
+			System.out.println("Enter a brief description of the problem: ");
 			complaint = in.readLine();
+			complaint = complaint.replace("'","''");
 			System.out.println();
 
 			//Execute the query
 			query = "INSERT INTO Service_Request(rid, customer_id, car_vin, date, odometer, complain) VALUES (" + rid + ", " + Integer.parseInt(id) + ", '" + vin + "', '" + date + "', " + odometer + ", '" + complaint + "')";
 			esql.executeUpdate(query);
-
 		}catch(Exception e){
 			System.err.println(e.getMessage());
 		}
