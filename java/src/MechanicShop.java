@@ -393,11 +393,6 @@ public class MechanicShop{
 			//Store info in DB
 			query = "INSERT INTO Mechanic(id, fname, lname, experience) VALUES (" + id + ", '" + fname + "', '" + lname + "', '" + experience + "')";
 			esql.executeUpdate(query);
-			//
-			query = "SELECT * FROM Mechanic WHERE id = 250";
-			esql.executeQueryAndPrintResult(query);
-
-			//
 		}catch(Exception e){
 			System.err.println(e.getMessage());
 		}
