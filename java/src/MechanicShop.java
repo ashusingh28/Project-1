@@ -617,7 +617,17 @@ public class MechanicShop{
 	}
 	
 	public static void ListCarsBefore1995With50000Milles(MechanicShop esql){//8
-		
+		try{
+			//Select cars built before 1995 with less than 50000 miles
+			String query = "SELECT DISTINCT make, model, year FROM Car AS C, Service_Request AS S WHERE year < 1995 AND S.car_vin = C.vin AND S.odometer < 50000";
+			List<List<String>> cars = esql.executeQueryAndReturnResult(query);
+			for(int i = 0; i < cars.size(); ++i){
+				System.out.println((i + 1) + ". " + cars.get(i).get(2) + " " + cars.get(i).get(0) + " " + cars.get(i).get(1));
+			}
+			System.out.println();
+		}catch(Exception e){
+			System.err.println(e.getMessage());
+		}
 	}
 	
 	public static void ListKCarsWithTheMostServices(MechanicShop esql){//9
