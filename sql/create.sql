@@ -48,6 +48,12 @@ CREATE TABLE Car
 	year _YEAR NOT NULL,
 	PRIMARY KEY (vin)
 );
+
+--------------
+---INDEXES----
+-------------
+CREATE UNIQUE INDEX vin_idx ON Car (vin);
+
 ---------------
 ---RELATIONS---
 ---------------
